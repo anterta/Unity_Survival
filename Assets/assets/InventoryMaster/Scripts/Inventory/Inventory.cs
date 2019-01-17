@@ -599,7 +599,6 @@ public class Inventory : MonoBehaviour
 
         stackableSettings();
         updateItemList();
-
     }
 
     public GameObject addItemToInventory(int id, int value)

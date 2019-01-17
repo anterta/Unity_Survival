@@ -30,29 +30,26 @@ MonoBehaviour:
     positionHandle: {x: 0, y: 0, z: 0}
     rotationHandle: {x: 0, y: 0, z: 0}
     itemAttributes: []
-  - itemName: Leather Helmet
+  - itemName: Water Bottle
     itemID: 1
-    itemDesc: 'This helmet is created out of leather.
-
-      + 10 Health
-
-      + 10 Armor'
-    itemIcon: {fileID: 21300000, guid: 63dca6d4e4e873a4cb09997656d54082, type: 3}
-    itemModel: {fileID: 100000, guid: 40da790cc27843b45b9c255c8d996b43, type: 2}
+    itemDesc: Bottle with some water
+    itemIcon: {fileID: 21300000, guid: 325a3dd7a93355d4e91d76fda74ca99f, type: 3}
+    itemModel: {fileID: 1611699969844974, guid: fdd1df2705066e24cb784d807648c2a6,
+      type: 2}
     itemValue: 1
-    itemType: 4
+    itemType: 2
     itemWeight: 0
     maxStack: 1
     indexItemInList: 999
     rarity: 23
     distancePickUp: 3
-    positionHandle: {x: 0, y: 0, z: 0}
-    rotationHandle: {x: 0, y: 0, z: 0}
+    positionHandle: {x: 0.08, y: -0.05, z: -0.1}
+    rotationHandle: {x: 90, y: 7, z: 0}
     itemAttributes:
-    - attributeName: Health
+    - attributeName: Thirsty
       attributeValue: 10
-    - attributeName: Armor
-      attributeValue: 10
+    - attributeName: Drop
+      attributeValue: 13
   - itemName: Iron Helmet
     itemID: 2
     itemDesc: 'This helmet is created out of iron.
@@ -287,16 +284,17 @@ MonoBehaviour:
     itemID: 13
     itemDesc: You can fill some juice into the bottle.
     itemIcon: {fileID: 21300000, guid: a9893eef89a9a0742b835e8296428609, type: 3}
-    itemModel: {fileID: 100000, guid: 40da790cc27843b45b9c255c8d996b43, type: 2}
+    itemModel: {fileID: 1263396816621490, guid: ef96786c43c913049918e20999aa1107,
+      type: 2}
     itemValue: 1
-    itemType: 2
+    itemType: 12
     itemWeight: 0
-    maxStack: 5
+    maxStack: 1
     indexItemInList: 999
     rarity: 13
     distancePickUp: 3
-    positionHandle: {x: 0, y: 0, z: 0}
-    rotationHandle: {x: 0, y: 0, z: 0}
+    positionHandle: {x: 0.08, y: -0.05, z: -0.1}
+    rotationHandle: {x: 90, y: 7, z: 0}
     itemAttributes: []
   - itemName: Raw Meat
     itemID: 14

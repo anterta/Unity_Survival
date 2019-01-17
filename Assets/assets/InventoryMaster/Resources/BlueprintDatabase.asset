@@ -26,6 +26,9 @@ MonoBehaviour:
       maxStack: 0
       indexItemInList: 0
       rarity: 0
+      distancePickUp: 3
+      positionHandle: {x: 0, y: 0, z: 0}
+      rotationHandle: {x: 0, y: 0, z: 0}
       itemAttributes: []
     amountOfFinalItem: 0
     timeToCraft: 0
@@ -45,6 +48,9 @@ MonoBehaviour:
       maxStack: 5
       indexItemInList: 999
       rarity: 0
+      distancePickUp: 3
+      positionHandle: {x: 0, y: 0, z: 0}
+      rotationHandle: {x: 0, y: 0, z: 0}
       itemAttributes:
       - attributeName: Health
         attributeValue: 20
@@ -68,6 +74,9 @@ MonoBehaviour:
       maxStack: 5
       indexItemInList: 999
       rarity: 0
+      distancePickUp: 3
+      positionHandle: {x: 0, y: 0, z: 0}
+      rotationHandle: {x: 0, y: 0, z: 0}
       itemAttributes:
       - attributeName: Health
         attributeValue: 20
@@ -91,6 +100,9 @@ MonoBehaviour:
       maxStack: 5
       indexItemInList: 999
       rarity: 0
+      distancePickUp: 3
+      positionHandle: {x: 0, y: 0, z: 0}
+      rotationHandle: {x: 0, y: 0, z: 0}
       itemAttributes:
       - attributeName: Health
         attributeValue: 50

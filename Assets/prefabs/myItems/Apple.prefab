@@ -22,9 +22,10 @@ GameObject:
   - component: {fileID: 205072485079345198}
   - component: {fileID: 65856553222663784}
   - component: {fileID: 114189504979102984}
+  - component: {fileID: 54347053466154918}
   m_Layer: 0
   m_Name: Apple
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96,7 +97,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1237568232928918}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.54860115, y: 0.00065087597, z: 0.35866165}
+  m_LocalPosition: {x: 736, y: 100, z: 790}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4283189841370564}
@@ -188,6 +189,21 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1947716263402276}
   m_Mesh: {fileID: 4300002, guid: 03121fe10b69e5940b4e209e1857a792, type: 3}
+--- !u!54 &54347053466154918
+Rigidbody:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1237568232928918}
+  serializedVersion: 2
+  m_Mass: 0.6
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!65 &65856553222663784
 BoxCollider:
   m_ObjectHideFlags: 1
@@ -214,15 +230,18 @@ MonoBehaviour:
   item:
     itemName: Apple
     itemID: 12
-    itemDesc: Pomme pour contrer la faim
+    itemDesc: 
     itemIcon: {fileID: 21300000, guid: a4d3f378d1a88f346af15ee906321f2a, type: 3}
-    itemModel: {fileID: 0}
+    itemModel: {fileID: 1237568232928918}
     itemValue: 1
     itemType: 2
     itemWeight: 0
     maxStack: 1
     indexItemInList: 999
     rarity: 0
+    distancePickUp: 3
+    positionHandle: {x: 0, y: 0, z: 0}
+    rotationHandle: {x: 0, y: 0, z: 0}
     itemAttributes: []
 --- !u!205 &205072485079345198
 LODGroup:

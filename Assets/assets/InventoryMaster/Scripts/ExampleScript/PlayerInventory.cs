@@ -18,19 +18,27 @@ public class PlayerInventory : MonoBehaviour
 
     Slider hpSlider;
     Slider hungrySlider;
+    Slider thirstySlider;
 
     public float maxHealth = 100;
     public float maxHungry = 100;
+    public float maxThirsty = 100;
     float maxDamage = 0;
     float maxArmor = 0;
 
-    public float diminutionHungryStep = .1f;
-    public float hungryDamageStep = .2f;
-    public float hungryTreatStep = .1f;
+    public float diminutionHungryStep = 1f;
+    public float hungryDamageStep = 2f;
+    public float hungryTreatStep = 1f;
     public float hungryLimitDamage = 15;
     public float hungryLimitTreat = 70;
+    public float diminutionThirstyStep = 1f;
+    public float thirstyDamageStep = 2f;
+    public float thirstyTreatStep = 1f;
+    public float thirstyLimitDamage = 15;
+    public float thirstyLimitTreat = 70;
     float currentHealth = 100;
     float currentHungry = 100;
+    float currentThirsty = 100;
     float currentDamage = 0;
     float currentArmor = 0;
 
@@ -160,6 +168,8 @@ public class PlayerInventory : MonoBehaviour
     {
         hpSlider = GameObject.Find("SliderHP").GetComponent<Slider>();
         hungrySlider = GameObject.Find("SliderHungry").GetComponent<Slider>();
+        thirstySlider = GameObject.Find("SliderThirsty").GetComponent<Slider>();
+
 
         if (inputManagerDatabase == null)
             inputManagerDatabase = (InputManager)Resources.Load("InputManager");
@@ -184,31 +194,36 @@ public class PlayerInventory : MonoBehaviour
         {
             if (item.itemAttributes[i].attributeName == "Health")
             {
-                if ((currentHealth + item.itemAttributes[i].attributeValue) > maxHealth)
-                    currentHealth = maxHealth;
-                else
-                    currentHealth += item.itemAttributes[i].attributeValue;
+                currentHealth = Mathf.Min(currentHealth + item.itemAttributes[i].attributeValue, maxHealth);
             }
             if (item.itemAttributes[i].attributeName == "Hungry")
             {
-                if ((currentHungry + item.itemAttributes[i].attributeValue) > maxHungry)
-                    currentHungry = maxHungry;
-                else
-                    currentHungry += item.itemAttributes[i].attributeValue;
+                currentHungry = Mathf.Min(currentHungry + item.itemAttributes[i].attributeValue, maxHungry);
+            }
+            if (item.itemAttributes[i].attributeName == "Thirsty")
+            {
+                Debug.Log("drink");
+                currentThirsty = Mathf.Min(currentThirsty + item.itemAttributes[i].attributeValue, maxThirsty);
             }
             if (item.itemAttributes[i].attributeName == "Armor")
             {
-                if ((currentArmor + item.itemAttributes[i].attributeValue) > maxArmor)
-                    currentArmor = maxArmor;
-                else
-                    currentArmor += item.itemAttributes[i].attributeValue;
+                currentArmor = Mathf.Min(currentArmor + item.itemAttributes[i].attributeValue, maxArmor);
             }
             if (item.itemAttributes[i].attributeName == "Damage")
             {
-                if ((currentDamage + item.itemAttributes[i].attributeValue) > maxDamage)
-                    currentDamage = maxDamage;
-                else
-                    currentDamage += item.itemAttributes[i].attributeValue;
+                currentDamage = Mathf.Min(currentDamage + item.itemAttributes[i].attributeValue, maxDamage);
+            }            
+            if (item.itemAttributes[i].attributeName == "Drop")
+            {
+                Debug.Log("test");
+                bool check = characterSystemInventory.checkIfItemAllreadyExist(item.itemAttributes[i].attributeValue, 1);
+                if (!check && characterSystemInventory.ItemsInInventory.Count < (characterSystemInventory.width * characterSystemInventory.height))
+                {
+                    Debug.Log("test1");
+                    characterSystemInventory.addItemToInventory(item.itemAttributes[i].attributeValue, 1);
+                    characterSystemInventory.updateItemList();
+                    characterSystemInventory.stackableSettings();
+                }
             }
         }
     }
@@ -250,11 +265,19 @@ public class PlayerInventory : MonoBehaviour
     {
         currentHungry -= Mathf.Max(0f, diminutionHungryStep * Time.deltaTime);
         hungrySlider.value = currentHungry / maxHungry;
+        currentThirsty -= Mathf.Max(0f, diminutionThirstyStep * Time.deltaTime);
+        thirstySlider.value = currentThirsty / maxThirsty;
 
         if(currentHungry < hungryLimitDamage)
             currentHealth -= Mathf.Max(0f, hungryDamageStep * Time.deltaTime);
         if(currentHungry > hungryLimitTreat)
             currentHealth += Mathf.Min(maxHealth, hungryTreatStep * Time.deltaTime);
+
+        if(currentThirsty < thirstyLimitDamage)
+            currentHealth -= Mathf.Max(0f, thirstyDamageStep * Time.deltaTime);
+        if(currentThirsty > thirstyLimitTreat)
+            currentHealth += Mathf.Min(maxHealth, thirstyTreatStep * Time.deltaTime);
+
         hpSlider.value = currentHealth / maxHealth;
 
         if (Input.GetKeyDown(inputManagerDatabase.CharacterSystemKeyCode))

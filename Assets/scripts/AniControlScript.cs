@@ -17,6 +17,7 @@ public class AniControlScript : MonoBehaviour {
 	[Range(0,180)] [SerializeField] public float turnStepAngle;
 	private float vSpeed;
 	private float hSpeed;
+	private Vector3 animStep;
 	#endregion
 	
 	#region IkVariables
@@ -35,28 +36,20 @@ public class AniControlScript : MonoBehaviour {
 	[SerializeField] private LayerMask environnementLayer;
 	#endregion
 
-	#region PickUpVariables
-	private GameObject _itemToPick = null;
-    private Inventory _inventory;
-	private GameObject _rightHand;
-	#endregion
+	private PlayerPickUp _pickUp;
 
 	void Start () {
 		anim = GetComponent<Animator>();
 		vSpeed = 0;
 		hSpeed = 0;
-		_inventory = GetComponent<PlayerInventory>().inventory.GetComponent<Inventory>();
-		_rightHand =  GameObject.Find("rHand");
+		_pickUp = GetComponent<PlayerPickUp>();
 	}
 
 	void Update () {
-		if(_itemToPick != null)
-			goPickUp();
-		else {
-			if (_inventory != null && Input.GetKeyDown(KeyCode.E))
-				findItem();
-		}
-	}/*
+		if(!_pickUp.IsActif())
+			AnimController();
+	}
+	/*
 	public float speed;
 	public float rotateHead;
 	public float rotationSpeed;
@@ -85,14 +78,12 @@ public class AniControlScript : MonoBehaviour {
 	private void AnimController() {
 		if(Input.GetKey(inputFront)) {
 			vSpeed = Mathf.Clamp(vSpeed + vAcceleration * Time.deltaTime, 0, 1);
-			anim.bodyPosition = anim.bodyPosition + Vector3.forward * walkStepDistance*vSpeed*Time.deltaTime;
-			//transform.Translate(0,0,walkStepDistance*vSpeed*Time.deltaTime);
 		}/*else if(Input.GetKey(inputBack)) {
 			vSpeed = Mathf.Clamp(vSpeed - vAcceleration * Time.deltaTime, -1, 1);
-			transform.Translate(0,0,-walkStepDistance*vSpeed*Time.deltaTime);
 		}*/ else {
 			vSpeed = Mathf.Clamp(vSpeed - 2*vAcceleration * Time.deltaTime, 0, 1);
 		}
+		animStep = Vector3.forward * walkStepDistance*vSpeed*Time.deltaTime;
 		
 		if(Input.GetKey(inputLeft)) {
 			hSpeed = Mathf.Clamp(hSpeed - hAcceleration * Time.deltaTime, -1f, 1f);
@@ -106,12 +97,46 @@ public class AniControlScript : MonoBehaviour {
 			hSpeed = hSpeed + 2*hAcceleration * Time.deltaTime;
 		}  
 
-		//myAnimator.SetBool("isJump", Input.GetKey(KeyCode.Space));
 		if(Input.GetKey(inputJump))
 			anim.SetTrigger("jump");
 
 		anim.SetFloat("vSpeed", vSpeed);
 		anim.SetFloat("hSpeed", hSpeed);
+	}
+
+	public bool GoTo(GameObject to) {
+		bool goodPlace = false;
+        Vector3 targetDir = to.transform.position - transform.position;
+
+        float angle = Vector3.SignedAngle(targetDir, transform.forward, Vector3.up);
+		if(angle > 25f) {
+			hSpeed = Mathf.Clamp(hSpeed - hAcceleration * Time.deltaTime, -1f, 1f);
+			transform.Rotate(Vector3.up, hSpeed * turnStepAngle * Time.deltaTime);
+		} else if(angle < -25f) {
+			hSpeed = Mathf.Clamp(hSpeed + hAcceleration * Time.deltaTime, -1f, 1f);
+			transform.Rotate(Vector3.up, hSpeed * turnStepAngle * Time.deltaTime);
+		} else {
+			if(hSpeed > 0) {
+				hSpeed = hSpeed - 2*hAcceleration * Time.deltaTime;
+			} else if(hSpeed < 0) {
+				hSpeed = hSpeed + 2*hAcceleration * Time.deltaTime;
+			} 
+			
+			float sqrMagnitude = Vector3.SqrMagnitude(targetDir);
+			if(sqrMagnitude > 1f) {
+				vSpeed = Mathf.Clamp(vSpeed + vAcceleration * Time.deltaTime, 0, .5f);
+			} else { 
+				vSpeed = Mathf.Clamp(vSpeed - 2*vAcceleration * Time.deltaTime, 0, 1); 
+
+				goodPlace = true;
+			}
+			animStep = Vector3.forward * walkStepDistance*vSpeed*Time.deltaTime;
+		}
+		
+		anim.SetFloat("vSpeed", vSpeed);
+		anim.SetFloat("hSpeed", hSpeed);
+
+		return goodPlace;
 	}
 
 	#endregion
@@ -131,29 +156,10 @@ public class AniControlScript : MonoBehaviour {
 	}
 
 	private void OnAnimatorIK(int layerIndex) {
-		if(anim == null) return;
-
-		if(_itemToPick == null) {
-			AnimController();
-			if(!enableFeetIK) return;
-			MovePelvisHeight();
-		} else {
-			if(anim.GetFloat("itemInHand") > .7f) {
-				PickUp();
-			} else if(anim.GetFloat("itemInHand") > .2f) {
-				_itemToPick.GetComponent<BoxCollider>().isTrigger = true;
-				//_itemToPick.transform.position = transform.TransformPoint( anim.GetBoneTransform(HumanBodyBones.RightIndexDistal).position);
-				Item item = _inventory.getItemByID(_itemToPick.GetComponent<PickUpItem>().item.itemID);
-				_itemToPick.transform.localPosition = item.positionHandle;
-				_itemToPick.transform.localEulerAngles = item.rotationHandle;
-				_itemToPick.transform.SetParent(_rightHand.transform);
-			} else {
-				anim.SetIKPositionWeight(AvatarIKGoal.RightHand, anim.GetFloat("rightHand"));
-				anim.SetIKPosition(AvatarIKGoal.RightHand, _itemToPick.transform.position);
-			}
-		}
+		anim.bodyPosition += animStep;
 
 		if(!enableFeetIK) return;
+		MovePelvisHeight();
 
 		anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1);
 		anim.SetIKRotationWeight(AvatarIKGoal.RightFoot, anim.GetFloat("rightFoot"));
@@ -226,73 +232,6 @@ public class AniControlScript : MonoBehaviour {
 	}
 
 	#endregion
-	#endregion
-
-	#region PickUpFunctions
-
-	private void findItem() {
-		GameObject[] items = GameObject.FindGameObjectsWithTag("Item");
-		for(int i=0; i<items.Length; i++) {
-            float distance = Vector3.Distance(items[i].transform.position, transform.position);
-			Item item = _inventory.getItemByID(items[i].GetComponent<PickUpItem>().item.itemID);
-
-            if (distance <= item.distancePickUp)
-            {
-				_itemToPick = items[i];
-				goPickUp();
-				return;
-			}
-		}
-	}
-
-	private void goPickUp() {
-        Vector3 targetDir = _itemToPick.transform.position - transform.position;
-
-        float angle = Vector3.SignedAngle(targetDir, transform.forward, Vector3.up);
-		if(angle > 25f) {
-			hSpeed = Mathf.Clamp(hSpeed - hAcceleration * Time.deltaTime, -1f, 1f);
-			transform.Rotate(Vector3.up, hSpeed * turnStepAngle * Time.deltaTime);
-		} else if(angle < -25f) {
-			hSpeed = Mathf.Clamp(hSpeed + hAcceleration * Time.deltaTime, -1f, 1f);
-			transform.Rotate(Vector3.up, hSpeed * turnStepAngle * Time.deltaTime);
-		} else {
-			if(hSpeed > 0) {
-				hSpeed = hSpeed - 2*hAcceleration * Time.deltaTime;
-			} else if(hSpeed < 0) {
-				hSpeed = hSpeed + 2*hAcceleration * Time.deltaTime;
-			} 
-			
-			float sqrMagnitude = Vector3.SqrMagnitude(targetDir);
-			if(sqrMagnitude > 1f) {
-				vSpeed = Mathf.Clamp(vSpeed + vAcceleration * Time.deltaTime, 0, .5f);
-				//anim.bodyPosition = anim.bodyPosition + Vector3.forward * walkStepDistance*vSpeed*Time.deltaTime;
-				transform.Translate(0,0,walkStepDistance*vSpeed*Time.deltaTime);
-			} else {
-				anim.SetTrigger("pickUp");
-			}
-		}
-		
-		anim.SetFloat("vSpeed", vSpeed);
-		anim.SetFloat("hSpeed", hSpeed);
-	}
-
-	private void PickUp() {
-		Item item = _itemToPick.GetComponent<PickUpItem>().item;
-		bool check = _inventory.checkIfItemAllreadyExist(item.itemID, item.itemValue);
-		if (check) {
-			Destroy(_itemToPick);
-		} else if (_inventory.ItemsInInventory.Count < (_inventory.width * _inventory.height))
-		{
-			_inventory.addItemToInventory(item.itemID, item.itemValue);
-			_inventory.updateItemList();
-			_inventory.stackableSettings();
-			Destroy(_itemToPick);
-		} else {
-			_itemToPick.GetComponent<BoxCollider>().isTrigger = false;
-		}
-		_itemToPick = null;
-	}
-
 	#endregion
 
 }
